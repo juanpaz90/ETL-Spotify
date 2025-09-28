@@ -1,13 +1,33 @@
-from spotify_auth import *
+from extractor import *
 
 def main():
-    sp = get_spotify_client()
+    extractor = SpotifyDataExtractor()
 
-    # Test authentication by getting user profile
-    user = sp.current_user()
-    print(f"Authenticated as: {user['display_name']}")
-    print(f"User ID: {user['id']}")
-    print(f"Followers: {user['followers']['total']}")
+    # user_profile = extractor.get_user_profile()
+    # print(user_profile)
+
+    # recently_played = extractor.get_recently_played()
+    # print(recently_played)
+
+    # top_tracks = extractor.get_top_tracks()
+    # print(top_tracks)
+
+    # top_artists = extractor.get_top_artists()
+    # print(top_artists)
+
+    # playlists = extractor.get_playlists()
+    # print(playlists)
+
+    saved_tracks = extractor.get_saved_tracks()
+    if not saved_tracks.empty:
+        tracks_id = saved_tracks['track_id'].tolist()
+        # audio_features =extractor.get_audio_features(tracks_id)
+        print(tracks_id)
+        print(len(tracks_id))
+    else:
+        audio_features = pd.DataFrame()
+        print(audio_features)
+
 
 if __name__ == "__main__":
     main()
