@@ -117,22 +117,35 @@ class SpotifyDataExtractor:
 
         return pd.DataFrame(artists_data)
 
-    def get_playlists(self):
-        """Extract user's playlists"""
+    def get_playlists(self, limit=50):
+        """Extract only the playlists that I created"""
         playlists_data = []
+        offset = 0
 
-        results = self.sp.current_user_playlists()
+        while True:
+            results = self.sp.user_playlists(self.user_id, limit=limit, offset=offset)
 
-        for playlist in results['items']:
-            playlists_data.append({
-                'playlist_id': playlist['id'],
-                'playlist_name': playlist['name'],
-                'description': playlist['description'],
-                'total_tracks': playlist['tracks']['total'],
-                'public': playlist['public'],
-                'collaborative': playlist['collaborative'],
-                'owner': playlist['owner']['display_name']
-            })
+            if not results['items']:
+                break
+
+            for playlist in results['items']:
+                # Only include playlists owned by the user
+                if playlist['owner']['id'] == self.user_id:
+                    playlists_data.append({
+                        'playlist_id': playlist['id'],
+                        'playlist_name': playlist['name'],
+                        'description': playlist['description'],
+                        'total_tracks': playlist['tracks']['total'],
+                        'public': playlist['public'],
+                        'collaborative': playlist['collaborative'],
+                        'owner': playlist['owner']['display_name']
+                    })
+
+            offset += limit
+            print(f"Extracted {len(playlists_data)} owned playlists...")
+
+            if len(results['items']) < limit:
+                break
 
         return pd.DataFrame(playlists_data)
 
@@ -140,31 +153,45 @@ class SpotifyDataExtractor:
         """Get audio features for tracks (in batches of 100)"""
         features_data = []
 
+        # Filter out None values and duplicates
+        valid_track_ids = [track_id for track_id in track_ids if track_id is not None]
+        valid_track_ids = list(set(valid_track_ids))  # Remove duplicates
+
+        print(f"Getting audio features for {len(valid_track_ids)} unique tracks...")
+
         # Process in batches of 100 (Spotify API limit)
-        for i in range(0, len(track_ids), 100):
-            batch_ids = track_ids[i:i + 100]
-            features = self.sp.audio_features(batch_ids)
+        for i in range(0, len(valid_track_ids), 100):
+            batch_ids = valid_track_ids[i:i+100]
 
-            for feature in features:
-                if feature:  # Some tracks might not have audio features
-                    features_data.append({
-                        'track_id': feature['id'],
-                        'danceability': feature['danceability'],
-                        'energy': feature['energy'],
-                        'key': feature['key'],
-                        'loudness': feature['loudness'],
-                        'mode': feature['mode'],
-                        'speechiness': feature['speechiness'],
-                        'acousticness': feature['acousticness'],
-                        'instrumentalness': feature['instrumentalness'],
-                        'liveness': feature['liveness'],
-                        'valence': feature['valence'],
-                        'tempo': feature['tempo'],
-                        'time_signature': feature['time_signature']
-                    })
+            try:
+                features = self.sp.audio_features(batch_ids)
 
-            print(f"Extracted audio features for {len(features_data)} tracks...")
-            time.sleep(0.1)  # Small delay to avoid rate limiting
+                for feature in features:
+                    if feature:  # Some tracks might not have audio features
+                        features_data.append({
+                            'track_id': feature['id'],
+                            'danceability': feature['danceability'],
+                            'energy': feature['energy'],
+                            'key': feature['key'],
+                            'loudness': feature['loudness'],
+                            'mode': feature['mode'],
+                            'speechiness': feature['speechiness'],
+                            'acousticness': feature['acousticness'],
+                            'instrumentalness': feature['instrumentalness'],
+                            'liveness': feature['liveness'],
+                            'valence': feature['valence'],
+                            'tempo': feature['tempo'],
+                            'time_signature': feature['time_signature']
+                        })
+
+                print(f"Batch {i//100 + 1}: Extracted {len([f for f in features if f])} audio features...")
+
+            except Exception as e:
+                print(f"Error getting audio features for batch {i//100 + 1}: {e}")
+                print(f"Problematic track IDs: {batch_ids[:5]}...")  # Show first 5 IDs
+                continue
+
+            time.sleep(0.2)  # Increased delay to avoid rate limiting
 
         return pd.DataFrame(features_data)
 
