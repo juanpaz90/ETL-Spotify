@@ -9,6 +9,7 @@ from dataclasses import dataclass
 class SpotifyDataExtractor:
     sp_client = get_spotify_client()
     user_id = sp_client.current_user()['id']
+    limit: int = 50
 
     def get_user_profile(self):
         """Extract user profile information"""
@@ -21,13 +22,13 @@ class SpotifyDataExtractor:
             'extracted_at': datetime.now()
         }
 
-    def get_saved_tracks(self, limit=50):
+    def get_saved_tracks(self):
         """Extract the tracks that I saved"""
         tracks_data = []
         offset = 0
 
         while True:
-            results = self.sp_client.current_user_saved_tracks(limit=limit, offset=offset)
+            results = self.sp_client.current_user_saved_tracks(limit=self.limit, offset=offset)
 
             if not results['items']:
                 break
@@ -48,18 +49,18 @@ class SpotifyDataExtractor:
                     'explicit': track['explicit']
                 })
 
-            offset += limit
+            offset += self.limit
             print(f"Extracted {len(tracks_data)} saved tracks...")
 
-            if len(results['items']) < limit:
+            if len(results['items']) < self.limit:
                 break
 
         return pd.DataFrame(tracks_data)
 
-    def get_recently_played(self, limit=50):
+    def get_recently_played(self):
         """Extract my recently played tracks"""
         tracks_data = []
-        results = self.sp_client.current_user_recently_played(limit=limit)
+        results = self.sp_client.current_user_recently_played(limit=self.limit)
 
         for item in results['items']:
             track = item['track']
@@ -74,12 +75,12 @@ class SpotifyDataExtractor:
 
         return pd.DataFrame(tracks_data)
 
-    def get_top_tracks(self, time_range='medium_term', limit=50):
+    def get_top_tracks(self, time_range):
         """Extract user's top tracks
         time_range: short_term (~4 weeks), medium_term (~6 months), long_term (~years)
         """
         tracks_data = []
-        results = self.sp_client.current_user_top_tracks(time_range=time_range, limit=limit)
+        results = self.sp_client.current_user_top_tracks(time_range=time_range, limit=self.limit)
 
         for idx, track in enumerate(results['items']):
             tracks_data.append({
@@ -95,10 +96,10 @@ class SpotifyDataExtractor:
 
         return pd.DataFrame(tracks_data)
 
-    def get_top_artists(self, time_range='medium_term', limit=50):
+    def get_top_artists(self, time_range):
         """Extract my top artists"""
         artists_data = []
-        results = self.sp_client.current_user_top_artists(time_range=time_range, limit=limit)
+        results = self.sp_client.current_user_top_artists(time_range=time_range, limit=self.limit)
 
         for idx, artist in enumerate(results['items']):
             artists_data.append({
@@ -113,13 +114,13 @@ class SpotifyDataExtractor:
 
         return pd.DataFrame(artists_data)
 
-    def get_playlists(self, limit=50):
+    def get_playlists(self):
         """Extract only the playlists that I created"""
         playlists_data = []
         offset = 0
 
         while True:
-            results = self.sp_client.user_playlists(self.user_id, limit=limit, offset=offset)
+            results = self.sp_client.user_playlists(self.user_id, limit=self.limit, offset=offset)
 
             if not results['items']:
                 break
@@ -137,10 +138,10 @@ class SpotifyDataExtractor:
                         'owner': playlist['owner']['display_name']
                     })
 
-            offset += limit
+            offset += self.limit
             print(f"Extracted {len(playlists_data)} owned playlists...")
 
-            if len(results['items']) < limit:
+            if len(results['items']) < self.limit:
                 break
 
         return pd.DataFrame(playlists_data)
@@ -184,7 +185,6 @@ class SpotifyDataExtractor:
 
         return pd.DataFrame(tracks_data)
 
-    # TODO move this method to a new Class
     def extract_all_data(self):
         """Extract all user data"""
         print("Starting data extraction...")
@@ -193,57 +193,64 @@ class SpotifyDataExtractor:
         user_profile = self.get_user_profile()
         saved_tracks = self.get_saved_tracks()
         recently_played = self.get_recently_played()
-        top_tracks_short = self.get_top_tracks('short_term')
-        top_tracks_medium = self.get_top_tracks('medium_term')
-        top_tracks_long = self.get_top_tracks('long_term')
-        top_artists_short = self.get_top_artists('short_term')
-        top_artists_medium = self.get_top_artists('medium_term')
-        top_artists_long = self.get_top_artists('long_term')
+        top_tracks = pd.concat([
+            self.get_top_tracks('short_term'),
+            self.get_top_tracks('medium_term'),
+            self.get_top_tracks('long_term')
+        ])
+        top_artists = pd.concat([
+            self.get_top_artists('short_term'),
+            self.get_top_artists('medium_term'),
+            self.get_top_artists('long_term')
+        ])
         playlists = self.get_playlists()
 
-        # Get detailed track information instead of audio features
         if not saved_tracks.empty:
             track_ids = saved_tracks['track_id'].tolist()
-            # Debug: Check for invalid track IDs
-            print(f"Total track IDs: {len(track_ids)}")
-            print(f"None values: {track_ids.count(None)}")
-            print(f"Sample track IDs: {[id for id in track_ids[:5] if id is not None]}")
-
             track_details = self.get_track_details(track_ids)
         else:
             track_details = pd.DataFrame()
-
-        # Save to CSV files
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        saved_tracks.to_csv(f'spotify_saved_tracks_{timestamp}.csv', index=False)
-        recently_played.to_csv(f'spotify_recently_played_{timestamp}.csv', index=False)
-        pd.concat([top_tracks_short, top_tracks_medium, top_tracks_long]).to_csv(f'spotify_top_tracks_{timestamp}.csv',
-                                                                                 index=False)
-        pd.concat([top_artists_short, top_artists_medium, top_artists_long]).to_csv(
-            f'spotify_top_artists_{timestamp}.csv', index=False)
-        playlists.to_csv(f'spotify_playlists_{timestamp}.csv', index=False)
-        track_details.to_csv(f'spotify_track_details_{timestamp}.csv', index=False)
-
-        print(f"\nExtraction completed!")
-        print(f"Saved tracks: {len(saved_tracks)}")
-        print(f"Recently played: {len(recently_played)}")
-        print(f"Top tracks: {len(pd.concat([top_tracks_short, top_tracks_medium, top_tracks_long]))}")
-        print(f"Top artists: {len(pd.concat([top_artists_short, top_artists_medium, top_artists_long]))}")
-        print(f"Playlists: {len(playlists)}")
-        print(f"Track details: {len(track_details)}")
 
         return {
             'user_profile': user_profile,
             'saved_tracks': saved_tracks,
             'recently_played': recently_played,
-            'top_tracks': pd.concat([top_tracks_short, top_tracks_medium, top_tracks_long]),
-            'top_artists': pd.concat([top_artists_short, top_artists_medium, top_artists_long]),
+            'top_tracks': top_tracks,
+            'top_artists': top_artists,
             'playlists': playlists,
             'track_details': track_details
         }
 
+@dataclass
+class StoreDataFiles:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-# if __name__ == "__main__":
-#     extractor = SpotifyDataExtractor()
-#     data = extractor.extract_all_data()
+    def save_csv(self):
+        pass
+        # saved_tracks.to_csv(f'spotify_saved_tracks_{timestamp}.csv', index=False)
+        # recently_played.to_csv(f'spotify_recently_played_{timestamp}.csv', index=False)
+        # pd.concat([top_tracks_short, top_tracks_medium, top_tracks_long]).to_csv(f'spotify_top_tracks_{timestamp}.csv',
+        #                                                                          index=False)
+        # pd.concat([top_artists_short, top_artists_medium, top_artists_long]).to_csv(
+        #     f'spotify_top_artists_{timestamp}.csv', index=False)
+        # playlists.to_csv(f'spotify_playlists_{timestamp}.csv', index=False)
+        # track_details.to_csv(f'spotify_track_details_{timestamp}.csv', index=False)
+        #
+        # print(f"\nExtraction completed!")
+        # print(f"Saved tracks: {len(saved_tracks)}")
+        # print(f"Recently played: {len(recently_played)}")
+        # print(f"Top tracks: {len(pd.concat([top_tracks_short, top_tracks_medium, top_tracks_long]))}")
+        # print(f"Top artists: {len(pd.concat([top_artists_short, top_artists_medium, top_artists_long]))}")
+        # print(f"Playlists: {len(playlists)}")
+        # print(f"Track details: {len(track_details)}")
+        #
+        # return {
+        #     'user_profile': user_profile,
+        #     'saved_tracks': saved_tracks,
+        #     'recently_played': recently_played,
+        #     'top_tracks': pd.concat([top_tracks_short, top_tracks_medium, top_tracks_long]),
+        #     'top_artists': pd.concat([top_artists_short, top_artists_medium, top_artists_long]),
+        #     'playlists': playlists,
+        #     'track_details': track_details
+        # }
+
