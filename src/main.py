@@ -1,12 +1,17 @@
-from extractor import *
+# from extractor import *
+from data_extractor import *
 
 def main():
-    extractor = SpotifyDataExtractor()
+    spotify_data = SpotifyDataExtractor()
+
+
+
+    # extractor = SpotifyDataExtractor()
 
     # user_profile = extractor.get_user_profile()
     # print(user_profile)
 
-    # saved_tracks = extractor.get_saved_tracks()
+    saved_tracks = spotify_data.get_saved_tracks()
     # print(saved_tracks)
 
     # recently_played = extractor.get_recently_played()
@@ -21,8 +26,8 @@ def main():
     # playlists = extractor.get_playlists()
     # print(playlists)
 
-    all_data = extractor.extract_all_data()
-    print(all_data)
+    # all_data = extractor.extract_all_data()
+    # print(all_data)
 
 
 
