@@ -150,37 +150,3 @@ class SpotifyDataExtractor:
             time.sleep(0.2)  # Rate limiting
 
         return pd.DataFrame(tracks_data)
-
-    def extract_all_data(self):
-        """Extract all user data"""
-        print("Starting data extraction...")
-
-        # Extract all data
-        user_profile = self.get_user_profile()
-        saved_tracks = self.get_saved_tracks()
-        recently_played = self.get_recently_played()
-        top_tracks = pd.concat([
-            self.get_top_tracks('short_term'),
-            self.get_top_tracks('medium_term'),
-            self.get_top_tracks('long_term')
-        ])
-        top_artists = pd.concat([
-            self.get_top_artists('short_term'),
-            self.get_top_artists('medium_term'),
-            self.get_top_artists('long_term')
-        ])
-
-        if not saved_tracks.empty:
-            track_ids = saved_tracks['track_id'].tolist()
-            track_details = self.get_track_details(track_ids)
-        else:
-            track_details = pd.DataFrame()
-
-        return {
-            'user_profile': user_profile,
-            'saved_tracks': saved_tracks,
-            'recently_played': recently_played,
-            'top_tracks': top_tracks,
-            'top_artists': top_artists,
-            'track_details': track_details
-        }
