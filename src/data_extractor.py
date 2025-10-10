@@ -2,14 +2,12 @@ import pandas as pd
 from datetime import datetime
 import time
 from spotify_auth import get_spotify_client
-from dataclasses import dataclass
 
 
-@dataclass
 class SpotifyDataExtractor:
-    sp_client = get_spotify_client()
-    user_id = sp_client.current_user()['id']
-    limit: int = 50
+    def __init__(self):
+        self.sp_client = get_spotify_client()
+        self.limit = 50
 
     def get_user_profile(self):
         """Extract user profile information"""
@@ -114,38 +112,6 @@ class SpotifyDataExtractor:
 
         return pd.DataFrame(artists_data)
 
-    def get_playlists(self):
-        """Extract only the playlists that I created"""
-        playlists_data = []
-        offset = 0
-
-        while True:
-            results = self.sp_client.user_playlists(self.user_id, limit=self.limit, offset=offset)
-
-            if not results['items']:
-                break
-
-            for playlist in results['items']:
-                # Only include playlists owned by the user
-                if playlist['owner']['id'] == self.user_id:
-                    playlists_data.append({
-                        'playlist_id': playlist['id'],
-                        'playlist_name': playlist['name'],
-                        'description': playlist['description'],
-                        'total_tracks': playlist['tracks']['total'],
-                        'public': playlist['public'],
-                        'collaborative': playlist['collaborative'],
-                        'owner': playlist['owner']['display_name']
-                    })
-
-            offset += self.limit
-            print(f"Extracted {len(playlists_data)} owned playlists...")
-
-            if len(results['items']) < self.limit:
-                break
-
-        return pd.DataFrame(playlists_data)
-
     def get_track_details(self, track_ids):
         """Get detailed track information in batches of 50 (API limit)"""
         tracks_data = []
@@ -203,7 +169,6 @@ class SpotifyDataExtractor:
             self.get_top_artists('medium_term'),
             self.get_top_artists('long_term')
         ])
-        playlists = self.get_playlists()
 
         if not saved_tracks.empty:
             track_ids = saved_tracks['track_id'].tolist()
@@ -217,6 +182,5 @@ class SpotifyDataExtractor:
             'recently_played': recently_played,
             'top_tracks': top_tracks,
             'top_artists': top_artists,
-            'playlists': playlists,
             'track_details': track_details
         }
