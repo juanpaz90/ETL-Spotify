@@ -220,37 +220,3 @@ class SpotifyDataExtractor:
             'playlists': playlists,
             'track_details': track_details
         }
-
-@dataclass
-class StoreDataFiles:
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    def save_csv(self):
-        pass
-        # saved_tracks.to_csv(f'spotify_saved_tracks_{timestamp}.csv', index=False)
-        # recently_played.to_csv(f'spotify_recently_played_{timestamp}.csv', index=False)
-        # pd.concat([top_tracks_short, top_tracks_medium, top_tracks_long]).to_csv(f'spotify_top_tracks_{timestamp}.csv',
-        #                                                                          index=False)
-        # pd.concat([top_artists_short, top_artists_medium, top_artists_long]).to_csv(
-        #     f'spotify_top_artists_{timestamp}.csv', index=False)
-        # playlists.to_csv(f'spotify_playlists_{timestamp}.csv', index=False)
-        # track_details.to_csv(f'spotify_track_details_{timestamp}.csv', index=False)
-        #
-        # print(f"\nExtraction completed!")
-        # print(f"Saved tracks: {len(saved_tracks)}")
-        # print(f"Recently played: {len(recently_played)}")
-        # print(f"Top tracks: {len(pd.concat([top_tracks_short, top_tracks_medium, top_tracks_long]))}")
-        # print(f"Top artists: {len(pd.concat([top_artists_short, top_artists_medium, top_artists_long]))}")
-        # print(f"Playlists: {len(playlists)}")
-        # print(f"Track details: {len(track_details)}")
-        #
-        # return {
-        #     'user_profile': user_profile,
-        #     'saved_tracks': saved_tracks,
-        #     'recently_played': recently_played,
-        #     'top_tracks': pd.concat([top_tracks_short, top_tracks_medium, top_tracks_long]),
-        #     'top_artists': pd.concat([top_artists_short, top_artists_medium, top_artists_long]),
-        #     'playlists': playlists,
-        #     'track_details': track_details
-        # }
-
