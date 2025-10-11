@@ -36,7 +36,7 @@ def all_spotify_data() -> dict:
 
 
 def data_to_gcs(all_data):
-    store_data = StoreDataFiles(all_data, "spotify_api_data")
+    store_data = StoreDataFiles(all_data, "spotify-api-data")
     store_data.save_to_gcs()
 
 
