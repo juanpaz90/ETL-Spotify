@@ -1,0 +1,27 @@
+version: 2.1
+
+executors:
+  base-gcp-img:
+    docker:
+      - image: cimg/gcp:2025.01
+    working_directory: ~/repo
+
+  base-python-img:
+    docker:
+      - image: cimg/python:3.12
+    working_directory: ~/repo
+
+commands:
+  setup-docker:
+    steps:
+      - checkout
+      - setup_remote_docker
+
+  run-script:
+    parameters:
+      script_path:
+        type: string
+    steps:
+      - run:
+          name: Run Script << parameters.script_path >>
+          command: sh << parameters.script_path >>
