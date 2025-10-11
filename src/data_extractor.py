@@ -1,7 +1,7 @@
+from spotify_auth import get_spotify_client
 import pandas as pd
 from datetime import datetime
 import time
-from spotify_auth import get_spotify_client
 
 
 class SpotifyDataExtractor:
