@@ -40,13 +40,9 @@ def data_to_gcs(all_data):
     store_data.save_to_gcs()
 
 
-def main():
-    # spotify_data = SpotifyDataExtractor()
-    # user_profile = spotify_data.get_user_profile()
-    # print(user_profile)
-    all_data = all_spotify_data()
-    data_to_gcs(all_data)
-
-
-if __name__ == "__main__":
-    main()
+def spotify_etl(data, context):
+    spotify_data = SpotifyDataExtractor()
+    user_profile = spotify_data.get_user_profile()
+    print(user_profile)
+    # all_data = all_spotify_data()
+    # data_to_gcs(all_data)
