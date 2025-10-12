@@ -25,3 +25,42 @@ commands:
       - run:
           name: Run Script << parameters.script_path >>
           command: sh << parameters.script_path >>
+
+jobs:
+  build:
+    executor: base-python-img
+    steps:
+      - checkout
+      - run:
+          name: install dependencies
+          command: sh ./build-scripts/install_packages.sh
+
+  gcp-cli:
+    executor: base-gcp-img
+    steps:
+      - checkout
+      - run:
+          name: Authenticate with gcloud
+          command: sh ./build-scripts/auth_gcp.sh
+      - run:
+          name: deploy google cloud function
+          command: sh ./build-scripts/deploy_function.sh
+
+
+workflows:
+  build_and_deploy:
+    jobs:
+      - approve-pipeline:
+          type: approval
+
+      - build:
+          name: Install-Python-Libraries
+          requires:
+            - approve-pipeline
+
+      - gcp-cli:
+          name: Authenticate-And-Deploy-Function
+          context:
+            - Spotify_ETL
+          requires:
+            - Install-Python-Libraries
