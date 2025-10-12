@@ -2,7 +2,8 @@
 
 deploy_function() {
   gcloud functions deploy spotify_etl \
-    --trigger-topic=spotify-etlg\
+    --gen2
+    --trigger-topic=spotify-etl \
     --no-allow-unauthenticated \
     --region=us-east1 \
     --source=./src \
