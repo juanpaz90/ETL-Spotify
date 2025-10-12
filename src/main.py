@@ -6,7 +6,7 @@ import pandas as pd
 def all_spotify_data() -> dict:
     spotify_data = SpotifyDataExtractor()
     user_profile = spotify_data.get_user_profile()
-    saved_tracks = spotify_data.get_user_profile()
+    saved_tracks = spotify_data.get_saved_tracks()
     recently_played = spotify_data.get_recently_played()
     top_tracks = pd.concat([
         spotify_data.get_top_tracks('short_term'),
