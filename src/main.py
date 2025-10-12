@@ -41,6 +41,9 @@ def data_to_gcs(all_data):
 
 
 def main():
+    # spotify_data = SpotifyDataExtractor()
+    # user_profile = spotify_data.get_user_profile()
+    # print(user_profile)
     all_data = all_spotify_data()
     data_to_gcs(all_data)
 
