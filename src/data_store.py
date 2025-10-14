@@ -3,22 +3,19 @@ from datetime import datetime
 
 
 class StoreDataFiles:
-    def __init__(self, all_spotify_data, bucket_name: str):
+    def __init__(self):
         self.current_date = datetime.now().strftime("%Y%m%d")
         self.storage_client = storage.Client()
-        self.all_spotify_data = all_spotify_data
-        self.bucket_name = bucket_name
 
-    def save_to_gcs(self):
+    def save_to_gcs(self, df_name: str, df_data, bucket_name:str):
         try:
-            for df_name, df_data in self.all_spotify_data.items():
-                csv_file_name = f'{df_name}_{self.current_date}.csv'
-                bucket_destination = self.storage_client.get_bucket(self.bucket_name)
+            csv_file_name = f'{df_name}_{self.current_date}.csv'
+            bucket_destination = self.storage_client.get_bucket(bucket_name)
 
-                blob = bucket_destination.blob(csv_file_name)
-                blob.content_type = 'text/csv'
-                df_data.to_csv(blob.open('w'), index=False)
-                print(f"CSV File {csv_file_name} saved into {self.bucket_name}")
+            blob = bucket_destination.blob(csv_file_name)
+            blob.content_type = 'text/csv'
+            df_data.to_csv(blob.open('w'), index=False)
+            print(f"CSV File {csv_file_name} saved into {bucket_name}")
 
             return True
         except Exception as e:

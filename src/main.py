@@ -3,46 +3,52 @@ from data_extractor import SpotifyDataExtractor
 import pandas as pd
 
 
-def all_spotify_data() -> dict:
-    spotify_data = SpotifyDataExtractor()
-    user_profile = spotify_data.get_user_profile()
-    saved_tracks = spotify_data.get_saved_tracks()
-    recently_played = spotify_data.get_recently_played()
-    top_tracks = pd.concat([
-        spotify_data.get_top_tracks('short_term'),
-        spotify_data.get_top_tracks('medium_term'),
-        spotify_data.get_top_tracks('long_term')
-    ])
-    top_artists = pd.concat([
-        spotify_data.get_top_artists('short_term'),
-        spotify_data.get_top_artists('medium_term'),
-        spotify_data.get_top_artists('long_term')
-    ])
+def extract_standard_datasets(spotify_data_extractor, store_data):
+    """For every file except <track_details> and <saved_tracks>"""
+    extraction_file_tasks = [
+        # Dataframe name and function
+        ('user_profile', lambda: spotify_data_extractor.get_user_profile()),
+        ('recently_played', lambda: spotify_data_extractor.get_recently_played()),
+        ('top_tracks', lambda: pd.concat([
+            spotify_data_extractor.get_top_tracks('short_term'),
+            spotify_data_extractor.get_top_tracks('medium_term'),
+            spotify_data_extractor.get_top_tracks('long_term')
+        ])),
+        ('top_artists', lambda: pd.concat([
+            spotify_data_extractor.get_top_artists('short_term'),
+            spotify_data_extractor.get_top_artists('medium_term'),
+            spotify_data_extractor.get_top_artists('long_term')
+        ]))
+    ]
+
+    for df_name, extract_func in extraction_file_tasks:
+        try:
+            print(f"Extracting {df_name}")
+            store_data.save_to_gcs(df_name, extract_func(), "spotify-api-data")
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+
+def extract_dependent_datasets(spotify_data_extractor, store_data):
+    """Only for <track_details> and <saved_tracks>"""
+    saved_tracks = spotify_data_extractor.get_saved_tracks()
+    store_data.save_to_gcs('saved_tracks', saved_tracks, "spotify-api-data")
 
     if not saved_tracks.empty:
         track_ids = saved_tracks['track_id'].tolist()
-        track_details = spotify_data.get_track_details(track_ids)
+        track_details = spotify_data_extractor.get_track_details(track_ids)
+        store_data.save_to_gcs('track_details', track_details, "spotify-api-data")
     else:
-        track_details = pd.DataFrame()
-
-    return {
-        'user_profile': user_profile,
-        'saved_tracks': saved_tracks,
-        'recently_played': recently_played,
-        'top_tracks': top_tracks,
-        'top_artists': top_artists,
-        'track_details': track_details
-    }
-
-
-def data_to_gcs(all_data):
-    store_data = StoreDataFiles(all_data, "spotify-api-data")
-    store_data.save_to_gcs()
+        print('>> Track_details is empty')
 
 
 def spotify_etl(data, context):
-    spotify_data = SpotifyDataExtractor()
-    user_profile = spotify_data.get_user_profile()
-    print(user_profile)
-    # all_data = all_spotify_data()
-    # data_to_gcs(all_data)
+    # spotify_data = SpotifyDataExtractor()
+    # user_profile = spotify_data.get_user_profile()
+    # print(user_profile)
+    spotify_data_extractor = SpotifyDataExtractor()
+    store_data = StoreDataFiles()
+
+    extract_standard_datasets(spotify_data_extractor, store_data)
+    extract_dependent_datasets(spotify_data_extractor, store_data)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 deploy_function() {
-  gcloud functions deploy spotify_etl \
+  gcloud functions deploy spotify_etl_start_topic \
     --region=us-east1 \
     --memory=512MB \
     --timeout=540s \
