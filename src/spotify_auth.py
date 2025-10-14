@@ -19,7 +19,7 @@ def get_spotify_client():
         redirect_uri=REDIRECT_URI,
         scope=SCOPE
     )
-    # WORK AROUND: I use the <token_info> & <refresh_token> to avoid any manual step required to authenticate against Spotify
+    # WORK AROUND: I use the <token_info> & <refresh_token> to avoid the manual step required to authenticate against Spotify
     token_info = auth_manager.refresh_access_token(spotify_refresh_token)
 
     try:
