@@ -49,7 +49,7 @@ def extract_dependent_datasets(spotify_data_extractor, store_data):
         print('>> Track_details is empty')
 
 
-def spotify_etl(data, context):
+def spotify_etl():
     # spotify_data = SpotifyDataExtractor()
     # user_profile = spotify_data.get_user_profile()
     # print(user_profile)
@@ -59,4 +59,10 @@ def spotify_etl(data, context):
     extract_standard_datasets(spotify_data_extractor, store_data)
     extract_dependent_datasets(spotify_data_extractor, store_data)
 
-spotify_etl("data", "context")
+
+def main():
+    spotify_etl()
+
+
+if __name__ == "__main__":
+    main()

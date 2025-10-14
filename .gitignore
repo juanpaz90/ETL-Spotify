@@ -41,7 +41,7 @@ htmlcov/
 .nox/
 .coverage
 .coverage.*
-src/.cache
+src/CloudRunJob/.cache
 nosetests.xml
 coverage.xml
 *.cover
