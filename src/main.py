@@ -4,7 +4,10 @@ import pandas as pd
 
 
 def extract_standard_datasets(spotify_data_extractor, store_data):
-    """For every file except <track_details> and <saved_tracks>"""
+    """
+    For every file except <track_details> and <saved_tracks>
+    In total the function store 4 files
+    """
     extraction_file_tasks = [
         # Dataframe name and function
         ('user_profile', lambda: spotify_data_extractor.get_user_profile()),
@@ -31,7 +34,10 @@ def extract_standard_datasets(spotify_data_extractor, store_data):
 
 
 def extract_dependent_datasets(spotify_data_extractor, store_data):
-    """Only for <track_details> and <saved_tracks>"""
+    """
+    Only for <track_details> and <saved_tracks>
+    In total the function store 2 files
+    """
     saved_tracks = spotify_data_extractor.get_saved_tracks()
     store_data.save_to_gcs('saved_tracks', saved_tracks, "spotify-api-data-files")
 
