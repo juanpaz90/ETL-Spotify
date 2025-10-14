@@ -12,13 +12,14 @@ class SpotifyDataExtractor:
     def get_user_profile(self):
         """Extract user profile information"""
         user = self.sp_client.current_user()
-        return {
+        my_profile_info = {
             'user_id': user['id'],
             'display_name': user['display_name'],
             'followers': user['followers']['total'],
             'country': user['country'],
             'extracted_at': datetime.now()
         }
+        return pd.DataFrame([my_profile_info])
 
     def get_saved_tracks(self):
         """Extract the tracks that I saved"""
