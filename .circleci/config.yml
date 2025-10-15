@@ -27,6 +27,29 @@ commands:
           command: sh << parameters.script_path >>
 
 jobs:
+  create_repositories:
+    executor: base-gcp-img
+    steps:
+      - checkout
+      - run-script:
+          script_path: ./build-scripts/auth_gcp.sh
+      - run-script:
+          script_path: ./build-scripts/artifact_reg.sh
+
+  build_push_img:
+    executor: base-gcp-img
+    steps:
+      - setup-docker
+      - run-script:
+          script_path: ./build-scripts/auth_gcp.sh
+      - run-script:
+          script_path: ./build-scripts/build_containers.sh
+      - run-script:
+          script_path: ./build-scripts/push_containers.sh
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
   build:
     executor: base-python-img
     steps:

@@ -19,8 +19,9 @@ requests = "*"
 spotipy = "*"
 pandas = "*"
 google-cloud-storage = "*"
-google-cloud-bigquery = "*"
 google-cloud-secret-manager = "*"
+google-cloud-bigquery = "*"
+pandas-gbq = "*"
 
 [requires]
 python_version = "3.12"

@@ -50,14 +50,14 @@ def extract_dependent_datasets(spotify_data_extractor, store_data):
 
 
 def spotify_etl():
-    # spotify_data = SpotifyDataExtractor()
-    # user_profile = spotify_data.get_user_profile()
-    # print(user_profile)
-    spotify_data_extractor = SpotifyDataExtractor()
-    store_data = StoreDataFiles()
-
-    extract_standard_datasets(spotify_data_extractor, store_data)
-    extract_dependent_datasets(spotify_data_extractor, store_data)
+    spotify_data = SpotifyDataExtractor()
+    user_profile = spotify_data.get_user_profile()
+    print(user_profile)
+    # spotify_data_extractor = SpotifyDataExtractor()
+    # store_data = StoreDataFiles()
+    #
+    # extract_standard_datasets(spotify_data_extractor, store_data)
+    # extract_dependent_datasets(spotify_data_extractor, store_data)
 
 
 def main():
