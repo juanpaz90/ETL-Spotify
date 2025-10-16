@@ -11,16 +11,16 @@ fi
 echo "Docker authenticated successfully."
 
 # Artifact Registry Image Paths
-PATH_IMAGE_RECOMMENDATIONS="us-east1-docker.pkg.dev/$GCP_PROJECT/recommendation-job/recommendation-job:latest"
+PATH_IMAGE_SPOTIFY_EXTRACTOR="us-east1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE_NAME:latest"
 
 # List docker images
 docker images
 
 # Push container
-echo "Push Recommendations container"
-docker push "${PATH_IMAGE_RECOMMENDATIONS}"
+echo "Push spotify-data-extractor container"
+docker push "${PATH_IMAGE_SPOTIFY_EXTRACTOR}"
 if [ $? -ne 0 ]; then
-  echo "Failed to push Recommendations image"
+  echo "Failed to push spotify-data-extractor image"
   exit 1
 fi
-echo "Recommendations image pushed successfully."
+echo "spotify-data-extractor image pushed successfully."

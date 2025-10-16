@@ -1,18 +1,16 @@
 #!/bin/bash
 
 deploy_function() {
-  gcloud functions deploy spotify_etl_start_topic \
+  gcloud functions deploy spotify_to_bq \
     --region=us-east1 \
-    --memory=512MB \
+    --memory=1Gi \
     --timeout=540s \
-    --source=./src \
-    --trigger-topic=spotify-etl \
+    --source=./src/CloudRunFunction \
+    --trigger-bucket=spotify-api-data-files \
     --max-instances=5 \
     --runtime=python312 \
-    --ingress-settings=internal-only
     --set-env-vars=PROJECT_ID=$PROJECT_ID \
-    --service-account=etl-deploy@testing-etl-jep.iam.gserviceaccount.com \
-    --build-service-account=projects/$PROJECT_ID/serviceAccounts/etl-deploy@testing-etl-jep.iam.gserviceaccount.com
+    --service-account=$SERVICE_ACCOUNT
 }
 
 deploy_function

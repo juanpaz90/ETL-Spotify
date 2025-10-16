@@ -50,7 +50,19 @@ jobs:
           root: .
           paths:
             - .
-  build:
+
+  deploy_sp_extractor:
+    executor: base-gcp-img
+    steps:
+      - attach_workspace:
+          at: .
+      - setup-docker
+      - run-script:
+          script_path: ./build/auth_gcp.sh
+      - run-script:
+          script_path: ./build/deploy_sp_extractor.sh
+
+  install-python:
     executor: base-python-img
     steps:
       - checkout
@@ -58,7 +70,7 @@ jobs:
           name: install dependencies
           command: sh ./build-scripts/install_packages.sh
 
-  gcp-cli:
+  deploy-function:
     executor: base-gcp-img
     steps:
       - checkout
@@ -76,13 +88,34 @@ workflows:
       - approve-pipeline:
           type: approval
 
-      - build:
-          name: Install-Python-Libraries
+      - create_repositories:
+          name: create-repositories
+          context:
+            - Spotify_ETL
           requires:
             - approve-pipeline
 
-      - gcp-cli:
-          name: Authenticate-And-Deploy-Function
+      - build_push_img:
+          name: build-push-img
+          context:
+            - Spotify_ETL
+          requires:
+            - create-repositories
+
+      - deploy_sp_extractor:
+          name: deploy_sp_extractor
+          context:
+            - Spotify_ETL
+          requires:
+            - build-push-img
+
+      - install-python:
+          name: Install Python Libraries
+          requires:
+            - approve-pipeline
+
+      - deploy-function:
+          name: Authenticate And Deploy Function
           context:
             - Spotify_ETL
           requires:
