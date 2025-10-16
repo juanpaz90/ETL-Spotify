@@ -103,19 +103,19 @@ workflows:
             - create-repositories
 
       - deploy_sp_extractor:
-          name: deploy_sp_extractor
+          name: deploy-sp-extractor
           context:
             - Spotify_ETL
           requires:
             - build-push-img
 
       - install-python:
-          name: Install Python Libraries
+          name: Install-Python-Libraries
           requires:
             - approve-pipeline
 
       - deploy-function:
-          name: Authenticate And Deploy Function
+          name: Authenticate-And-Deploy-Function
           context:
             - Spotify_ETL
           requires:

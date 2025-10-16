@@ -15,12 +15,12 @@ def copy_to_bigquery(data_frame):
     track_details = f"gen-lang-client-0386264733.spotify_api_data.track_details"
 
     df = pd.DataFrame(data_frame)
-    try:
+    # try:
         # TODO update the logic to capture file name, and use it as a variable name
-        pandas_gbq.to_gbq(df, table_id, if_exists='append')
-        print(f"SUCCESS - Data transferred to {table_id}")
-    except Exception as e:
-        print(f"ERROR - {e}")
+    #     pandas_gbq.to_gbq(df, table_id, if_exists='append')
+    #     print(f"SUCCESS - Data transferred to {table_id}")
+    # except Exception as e:
+    #     print(f"ERROR - {e}")
 
 
 def spotify_to_bq(event, context):
