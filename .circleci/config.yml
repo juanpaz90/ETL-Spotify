@@ -58,9 +58,9 @@ jobs:
           at: .
       - setup-docker
       - run-script:
-          script_path: ./build/auth_gcp.sh
+          script_path: ./build-scripts/auth_gcp.sh
       - run-script:
-          script_path: ./build/deploy_sp_extractor.sh
+          script_path: ./build-scripts/deploy_sp_extractor.sh
 
   install-python:
     executor: base-python-img
