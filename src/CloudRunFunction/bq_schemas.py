@@ -3,7 +3,7 @@ from google.cloud import bigquery
 
 def table_schemas(table_name) -> list:
     """
-    table_name and file_name have the same value
+    table_name and file_name have the same name
     """
     schemas = {
         "recently_played_schema" : [

@@ -1,11 +1,12 @@
 from google.cloud import bigquery
 from bq_schemas import table_schemas
+import pandas_gbq
 import os
 
 
 def move_to_bigquery(file_path, table_name):
     """
-    table_name and file_name have the same value
+    table_name and file_name have the same name
     """
     client = bigquery.Client()
     table_id = f"{os.environ["PROJECT_ID"]}.spotify_api_data.{table_name}"
@@ -28,5 +29,10 @@ def move_to_bigquery(file_path, table_name):
     print(f">> Destination_table --> {destination_table}")
     print(f">> Loaded {format(destination_table.num_rows)} rows.")
 
-    # "gen-lang-client-0386264733.spotify_api_data.track_details"
-    # project.dataframe.table_id
+
+def copy_to_bigquery(df_clean, table_name):
+    table_id = f"{os.environ["PROJECT_ID"]}.spotify_api_data.{table_name}"
+    try:
+        pandas_gbq.to_gbq(df_clean, table_id, if_exists='append')
+    except Exception as e:
+        print(f"Error: {e}")
