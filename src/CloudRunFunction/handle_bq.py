@@ -5,9 +5,6 @@ import os
 
 
 def move_to_bigquery(file_path, table_name):
-    """
-    table_name and file_name have the same name
-    """
     try:
         client = bigquery.Client()
         table_id = f"{os.environ["PROJECT_ID"]}.spotify_api_data.{table_name}"
