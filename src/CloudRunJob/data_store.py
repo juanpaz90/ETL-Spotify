@@ -19,4 +19,4 @@ class StoreDataFiles:
 
             return True
         except Exception as e:
-            print(f"ERROR: {e}")
+            print(f"ERROR save_to_gcs: {e}")

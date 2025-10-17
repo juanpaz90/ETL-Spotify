@@ -26,4 +26,4 @@ def get_spotify_client():
         print("## Authentication successful!")
         return spotipy.Spotify(auth=token_info['access_token'])
     except Exception as e:
-        print(f"ERROR: {e}")
+        print(f"ERROR get_spotify_client: {e}")

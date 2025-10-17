@@ -15,4 +15,4 @@ class SecretKey:
             my_secret_value = response.payload.data.decode("UTF-8")
             return my_secret_value
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error get_secret: {e}")
