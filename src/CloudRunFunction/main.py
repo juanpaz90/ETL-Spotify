@@ -1,6 +1,5 @@
 import functions_framework
 from handle_bq import *
-import re
 from handle_data import *
 
 
@@ -20,7 +19,7 @@ def file_name_validation(file_path, file_name, bucket_name):
             print(f"File name to be cleaned: {file_name}")
             df_data = read_file_from_gcs(bucket_name, file_name)
             df_clean = fix_genre_name(df_data)
-            copy_to_bigquery(df_clean, file_name)
+            copy_to_bigquery(df_clean, table_name)
         except Exception as e:
             print(f"Error in File name to be cleaned: {e}")
     else:
