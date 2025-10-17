@@ -13,8 +13,9 @@ def get_file_name(cloud_event):
 
 
 def file_name_validation(file_path, file_name, bucket_name):
-    # table_name and file_name have the same name, so I can use them without any problem
-    if file_name.startswith("track_details"):
+    table_name = file_name.rsplit('_', 1)[0]
+
+    if table_name == "track_details":
         try:
             print(f"File name to be cleaned: {file_name}")
             df_data = read_file_from_gcs(bucket_name, file_name)
@@ -23,8 +24,8 @@ def file_name_validation(file_path, file_name, bucket_name):
         except Exception as e:
             print(f"Error in File name to be cleaned: {e}")
     else:
-        print(f"File name: {file_name}")
-        move_to_bigquery(file_path, file_name)
+        print(f"File name to be moved: {file_name}")
+        move_to_bigquery(file_path, table_name)
 
 
 @functions_framework.cloud_event
