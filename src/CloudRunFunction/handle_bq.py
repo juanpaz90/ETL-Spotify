@@ -13,6 +13,7 @@ def move_to_bigquery(file_path, table_name):
             schema=table_schemas(table_name),
             skip_leading_rows=1,
             source_format=bigquery.SourceFormat.CSV,
+            write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE_DATA
         )
         uri = file_path
         load_job = client.load_table_from_uri(
@@ -33,6 +34,7 @@ def move_to_bigquery(file_path, table_name):
 def copy_to_bigquery(df_clean, table_name):
     table_id = f"{os.environ["PROJECT_ID"]}.spotify_api_data.{table_name}"
     try:
-        pandas_gbq.to_gbq(df_clean, table_id, if_exists='append')
+        pandas_gbq.to_gbq(df_clean, table_id, if_exists='replace')
+        print(f"Data transferred successfully to {table_name}")
     except Exception as e:
         print(f"Error copy_to_bigquery: {e}")
