@@ -18,10 +18,11 @@ safety = "*"
 requests = "*"
 spotipy = "*"
 pandas = "*"
-google-cloud-storage = "*"
 google-cloud-secret-manager = "*"
 google-cloud-bigquery = "*"
 pandas-gbq = "*"
+functions-framework = "*"
+google-cloud-storage = "*"
 
 [requires]
 python_version = "3.12"

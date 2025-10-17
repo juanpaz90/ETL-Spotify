@@ -1,27 +1,25 @@
-import pandas as pd
-import pandas_gbq
-
-def get_bucket_name(event):
-    name = event['name']
-    bucket = event['bucket']
-    return f"gs://{bucket}/{name}"
+import functions_framework
+from move_bq import move_to_bigquery
+import re
 
 
-def copy_to_bigquery(data_frame):
-    recently_played = f"gen-lang-client-0386264733.spotify_api_data.recently_played"
-    saved_tracks = f"gen-lang-client-0386264733.spotify_api_data.saved_tracks"
-    top_artists = f"gen-lang-client-0386264733.spotify_api_data.top_artists"
-    top_tracks = f"gen-lang-client-0386264733.spotify_api_data.top_tracks"
-    track_details = f"gen-lang-client-0386264733.spotify_api_data.track_details"
-
-    df = pd.DataFrame(data_frame)
-    # try:
-        # TODO update the logic to capture file name, and use it as a variable name
-    #     pandas_gbq.to_gbq(df, table_id, if_exists='append')
-    #     print(f"SUCCESS - Data transferred to {table_id}")
-    # except Exception as e:
-    #     print(f"ERROR - {e}")
+def get_file_name(cloud_event):
+    data = cloud_event.data
+    file_name = data.get("name")
+    file_path = f"gs://{data.get("bucket")}/{file_name}"
+    return file_path, file_name
 
 
-def spotify_to_bq(event, context):
-    get_bucket_name(event)
+def file_name_validation(file_path, file_name):
+    name = re.findall(r"(\btrack_details)", file_name)[0]
+    if name == "track_details_":
+        print(f"File name to be cleaned: {file_name}")
+    else:
+        print(f"File name: {file_name}")
+        move_to_bigquery(file_path, file_name)
+
+
+@functions_framework.cloud_event
+def spotify_to_bq(cloud_event):
+    file_path, file_name = get_file_name(cloud_event)
+    file_name_validation(file_path, file_name)
