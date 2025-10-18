@@ -4,13 +4,12 @@ This an automated data pipeline that I used to extract my personal music listeni
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Setup](#setup)
-- [Deployment](#deployment)
+- [Overview](#-overview)
+- [Architecture](#-architecture)
+- [Tech Stack](#-tech-stack)
+- [Prerequisites](#-prerequisites)
+- [Setup](#-setup)
+- [Deployment](#-Deployment)
 
 ## 🎯 Overview
 
