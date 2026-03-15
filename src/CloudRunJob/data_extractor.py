@@ -151,3 +151,63 @@ class SpotifyDataExtractor:
             time.sleep(0.2)  # Rate limiting
 
         return pd.DataFrame(tracks_data)
+
+    def get_my_playlists_list(self):
+        """Extract user's playlists"""
+        playlists_data = []
+        results = self.sp_client.current_user_playlists(limit=50)
+
+        while results:
+            for playlist in results['items']:
+                if playlist['owner']['display_name'] == 'Juan P.':
+                    playlists_data.append({
+                        'playlist_id': playlist['id'],
+                        'playlist_name': playlist['name'],
+                        'total_tracks': playlist['tracks']['total'],
+                        'public': playlist['public'],
+                        'owner': playlist['owner']['display_name']
+                    })
+            if results['next']:
+                results = self.sp_client.next(results)
+            else:
+                results = None
+
+        return pd.DataFrame(playlists_data)
+
+    def get_playlist_tracks(self, playlist_id):
+        """Extract all tracks from a specific playlist"""
+        tracks_data = []
+
+        # Spotipy's playlist_items has a max limit of 100 per request
+        results = self.sp_client.playlist_items(playlist_id, limit=100)
+
+        while results:
+            for item in results['items']:
+                track = item.get('track')
+
+                # Skip if track is None (can happen with local files or deleted songs)
+                if not track:
+                    continue
+
+                tracks_data.append({
+                    'playlist_id': playlist_id,
+                    'track_id': track.get('id'),
+                    'track_name': track.get('name'),
+                    'artist_name': ', '.join([artist['name'] for artist in track.get('artists', [])]),
+                    'artist_id': track['artists'][0]['id'] if track.get('artists') else None,
+                    'album_name': track.get('album', {}).get('name'),
+                    'album_id': track.get('album', {}).get('id'),
+                    'release_date': track.get('album', {}).get('release_date'),
+                    'duration_ms': track.get('duration_ms'),
+                    'popularity': track.get('popularity'),
+                    'added_at': item.get('added_at'),
+                    'explicit': track.get('explicit')
+                })
+
+            # Fetch next page if available using the .next() pattern
+            if results['next']:
+                results = self.sp_client.next(results)
+            else:
+                results = None
+
+        return pd.DataFrame(tracks_data)

@@ -211,3 +211,4 @@ __marimo__/
 Data
 GCP_Credentials
 src/.DS_Store
+src/.cache

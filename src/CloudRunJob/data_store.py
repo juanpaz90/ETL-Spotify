@@ -14,7 +14,8 @@ class StoreDataFiles:
 
             blob = bucket_destination.blob(csv_file_name)
             blob.content_type = 'text/csv'
-            df_data.to_csv(blob.open('w'), index=False)
+            with blob.open('w') as f:
+                df_data.to_csv(f, index=False)
             print(f"CSV File {csv_file_name} saved into {bucket_name}")
 
             return True
