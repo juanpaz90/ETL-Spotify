@@ -14,7 +14,6 @@ autopep8 = "*"
 
 [packages]
 python-dotenv = "==0.19.2"
-safety = "*"
 requests = "*"
 spotipy = "*"
 pandas = "*"
@@ -25,4 +24,4 @@ functions-framework = "*"
 google-cloud-storage = "*"
 
 [requires]
-python_version = "3.12"
+python_version = "3.13"
